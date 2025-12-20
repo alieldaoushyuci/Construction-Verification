@@ -1,22 +1,67 @@
+import React, { useState, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import TestComponent from './components/TestComponent';
+import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
+import Footer from './components/Footer';
+import AccountInfo from './components/AccountInfo';
+import InsuranceSignIn from './components/InsuranceSignIn';
+import DocumentUpload from './components/DocumentUpload';
+import Settings from './components/Settings';
 
 export default function App() {
+  // For native, maintain internal route state. For web, use window.location.pathname.
+  const [route, setRoute] = useState('/');
+
+  const currentPath = useMemo(() => {
+    if (Platform.OS === 'web' && typeof window !== 'undefined') {
+      return window.location.pathname || '/';
+    }
+    return route || '/';
+  }, [route]);
+
+  function renderContent() {
+    switch (currentPath) {
+      case '/AccountInfo':
+        return <AccountInfo />;
+      case '/InsuranceSignIn':
+        return <InsuranceSignIn />;
+      case '/DocumentUpload':
+        return <DocumentUpload />;
+      case '/Settings':
+        return <Settings />;
+      default:
+        return (
+          <View style={styles.content}>
+            <Text style={styles.title}>Home Page</Text>
+            <Text style={styles.subtitle}>Welcome — use the footer links to navigate.</Text>
+          </View>
+        );
+    }
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <TestComponent></TestComponent>
+    <SafeAreaView style={styles.safe}>
+      {renderContent()}
+
+      <Footer onNavigate={(path) => {
+        // If web, navigate to path so SPA updates URL; if native, update local route state
+        if (Platform.OS === 'web' && typeof window !== 'undefined') {
+          window.history.pushState({}, '', path);
+          // trigger re-render by forcing a small state change
+          // (we rely on useMemo reading window.location.pathname on next render)
+          setRoute((r) => r);
+          return;
+        }
+        setRoute(path);
+      }} />
+
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  safe: { flex: 1, backgroundColor: '#fff' },
+  content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
+  title: { fontSize: 24, fontWeight: '600', marginBottom: 8 },
+  subtitle: { fontSize: 16, color: '#444' },
 });
