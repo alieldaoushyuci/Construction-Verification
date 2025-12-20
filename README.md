@@ -71,36 +71,12 @@ Publishing will involve:
 
 ---
 
-## Starting the Backend
 
-1. Navigate to the backend folder
-    ```bash
-    cd backend
-    ```
-2. Install dependencies
-    ```bash
-    npm install
-    ```
-3. Start the backend server
-   ```bash
-   npm start
-    ```
-The backend will run at: http://localhost:5001
+## Starting the web version
 
-## Starting the Frontend
-1. Navigate to the frontend folder
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies
-    ```bash
-    npm install
-    ```
-3. Start the development server
-    ```bash
-   npm run dev
-   ```
-The frontend will run at: http://localhost:5173
+cd my-app
+npm install
+npm run web
 
 
 
