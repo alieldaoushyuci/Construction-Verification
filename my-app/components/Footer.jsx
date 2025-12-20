@@ -7,6 +7,7 @@ export default function Footer({ onNavigate } = {}) {
     const links = [
         { label: 'Account', path: '/AccountInfo' },
         { label: 'Insurance', path: '/InsuranceSignIn' },
+        { label: 'Home', path: '/' },
         { label: 'Upload', path: '/DocumentUpload' },
         { label: 'Settings', path: '/Settings' },
     ];
@@ -22,7 +23,7 @@ export default function Footer({ onNavigate } = {}) {
             return;
         }
 
-        // Fallback: console log the path so developers can wire navigation
+        // Fallback: console log the path so devs can wire navigation
         console.log('Navigate to', path);
     }
 
