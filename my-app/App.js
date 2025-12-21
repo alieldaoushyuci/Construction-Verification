@@ -4,11 +4,10 @@ import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
 import Footer from './components/Footer';
 import AccountInfo from './components/AccountInfo';
 import InsuranceSignIn from './components/InsuranceSignIn';
-import DocumentUpload from './components/DocumentUpload';
+import DocumentUpload from './components/DocumentUpload/DocumentUpload';
 import Settings from './components/Settings';
 
 export default function App() {
-  // For native, maintain internal route state. For web, use window.location.pathname.
   const [route, setRoute] = useState('/');
 
   const currentPath = useMemo(() => {
@@ -49,11 +48,8 @@ export default function App() {
       </View>
 
       <Footer onNavigate={(path) => {
-        // If web, navigate to path so SPA updates URL; if native, update local route state
         if (Platform.OS === 'web' && typeof window !== 'undefined') {
           window.history.pushState({}, '', path);
-          // trigger re-render by forcing a small state change
-          // (we rely on useMemo reading window.location.pathname on next render)
           setRoute((r) => r);
           return;
         }

@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 
-// Footer component
-// Props - onNavigate(path) optional callback (e.g. navigation.navigate)
 export default function Footer({ onNavigate } = {}) {
     const links = [
         { label: 'Account', path: '/AccountInfo' },
@@ -23,11 +21,8 @@ export default function Footer({ onNavigate } = {}) {
             return;
         }
 
-        // Fallback: console log the path so devs can wire navigation
-        console.log('Navigate to', path);
     }
 
-    // Render anchors on web for proper right-click / open-in-new-tab behavior
     if (Platform.OS === 'web') {
         return (
             <View style={styles.container}>

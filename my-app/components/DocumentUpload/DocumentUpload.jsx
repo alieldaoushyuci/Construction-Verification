@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
 import { FiCamera, FiCircle, FiCode, FiFileText, FiLayers, FiLayout } from 'react-icons/fi';
+import ImageUpload from './ImageUpload';
 
 import './DocumentUpload.css';
 
@@ -19,25 +20,29 @@ const DEFAULT_ITEMS = [
     },
     {
         title: 'Contractor License',
-        description: 'Upload or scan contractor license',
+        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
+        description: 'Upload contractor license',
         id: 3,
         icon: <FiCamera className="carousel-icon" />
     },
     {
         title: 'Forklift Certificate',
-        description: 'Upload or scan forklift certificate.',
+        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
+        description: 'Upload forklift certificate.',
         id: 4,
         icon: <FiCamera className="carousel-icon" />
     },
     {
         title: 'Scissor Lift Certificate',
-        description: 'Upload or scan scissor lift certificate.',
+        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
+        description: 'Upload scissor lift certificate.',
         id: 5,
         icon: <FiCamera className="carousel-icon" />
     },
     {
         title: 'OSHA Certificate',
-        description: 'Upload or scan OSHA certificate.',
+        description: 'Upload OSHA certificate.',
+        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
         id: 6,
         icon: <FiCamera className="carousel-icon" />
     }
@@ -71,6 +76,9 @@ function CarouselItem({ item, index, itemWidth, round, trackItemOffset, x, trans
             <div className="carousel-item-content">
                 <div className="carousel-item-title">{item.title}</div>
                 <p className="carousel-item-description">{item.description}</p>
+                {item.component && (
+                    <div className="carousel-item-component">{item.component}</div>
+                )}
             </div>
         </motion.div>
     );
@@ -217,7 +225,7 @@ export default function DocumentUpload({
                 ...(round && { height: `${baseWidth}px`, borderRadius: '50%' })
             }}
         >
-            <h1>Documents Upload</h1>
+            <h1>Upload Documents</h1>
             <motion.div
                 className="carousel-track"
                 drag={isAnimating ? false : 'x'}
