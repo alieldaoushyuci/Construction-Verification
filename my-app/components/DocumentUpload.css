@@ -21,7 +21,7 @@
     justify-content: space-between;
     border: 1px solid #555;
     border-radius: calc(var(--outer-r) - var(--p-distance));
-    background-color: #0d0716;
+    background-color: #56545a;
     overflow: hidden;
     cursor: grab;
 }

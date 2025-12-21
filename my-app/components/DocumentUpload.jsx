@@ -1,39 +1,45 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { FiCircle, FiCode, FiFileText, FiLayers, FiLayout } from 'react-icons/fi';
+import { FiCamera, FiCircle, FiCode, FiFileText, FiLayers, FiLayout } from 'react-icons/fi';
 
 import './DocumentUpload.css';
 
 const DEFAULT_ITEMS = [
     {
-        title: 'Text Animations',
-        description: 'Cool text animations for your projects.',
+        title: 'Contractor Name',
+        description: 'Upload contractor information.',
         id: 1,
-        icon: <FiFileText className="carousel-icon" />
+        icon: <FiCircle className="carousel-icon" />
     },
     {
-        title: 'Animations',
-        description: 'Smooth animations for your projects.',
+        title: 'DBA',
+        description: 'Upload DBA information.',
         id: 2,
         icon: <FiCircle className="carousel-icon" />
     },
     {
-        title: 'Components',
-        description: 'Reusable components for your projects.',
+        title: 'Contractor License',
+        description: 'Upload or scan contractor license',
         id: 3,
-        icon: <FiLayers className="carousel-icon" />
+        icon: <FiCamera className="carousel-icon" />
     },
     {
-        title: 'Backgrounds',
-        description: 'Beautiful backgrounds and patterns for your projects.',
+        title: 'Forklift Certificate',
+        description: 'Upload or scan forklift certificate.',
         id: 4,
-        icon: <FiLayout className="carousel-icon" />
+        icon: <FiCamera className="carousel-icon" />
     },
     {
-        title: 'Common UI',
-        description: 'Common UI components are coming soon!',
+        title: 'Scissor Lift Certificate',
+        description: 'Upload or scan scissor lift certificate.',
         id: 5,
-        icon: <FiCode className="carousel-icon" />
+        icon: <FiCamera className="carousel-icon" />
+    },
+    {
+        title: 'OSHA Certificate',
+        description: 'Upload or scan OSHA certificate.',
+        id: 6,
+        icon: <FiCamera className="carousel-icon" />
     }
 ];
 

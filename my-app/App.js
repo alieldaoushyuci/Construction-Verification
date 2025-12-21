@@ -27,7 +27,7 @@ export default function App() {
       case '/DocumentUpload':
         return (
           <View style={styles.center}>
-            <DocumentUpload />
+            <DocumentUpload baseWidth={500} />
           </View>
         );
       case '/Settings':
