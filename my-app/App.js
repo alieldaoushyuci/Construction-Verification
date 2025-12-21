@@ -25,7 +25,11 @@ export default function App() {
       case '/InsuranceSignIn':
         return <InsuranceSignIn />;
       case '/DocumentUpload':
-        return <DocumentUpload />;
+        return (
+          <View style={styles.center}>
+            <DocumentUpload />
+          </View>
+        );
       case '/Settings':
         return <Settings />;
       default:
@@ -40,7 +44,9 @@ export default function App() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      {renderContent()}
+      <View style={styles.contentContainer}>
+        {renderContent()}
+      </View>
 
       <Footer onNavigate={(path) => {
         // If web, navigate to path so SPA updates URL; if native, update local route state
@@ -61,7 +67,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+  contentContainer: { flex: 1, overflow: 'auto' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   title: { fontSize: 24, fontWeight: '600', marginBottom: 8 },
   subtitle: { fontSize: 16, color: '#444' },
 });
