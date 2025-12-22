@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
 import Footer from './components/Footer';
+import LoginScreen from "./components/LoginScreen";
 import AccountInfo from './components/AccountInfo';
 import InsuranceSignIn from './components/InsuranceSignIn';
 import DocumentUpload from './components/DocumentUpload';
@@ -39,6 +40,10 @@ export default function App() {
   }
 
   return (
+    <View style={styles.container}>
+      <LoginScreen />
+      <StatusBar style="light" />
+    </View>
     <SafeAreaView style={styles.safe}>
       {renderContent()}
 
@@ -60,6 +65,10 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
   safe: { flex: 1, backgroundColor: '#fff' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   title: { fontSize: 24, fontWeight: '600', marginBottom: 8 },
