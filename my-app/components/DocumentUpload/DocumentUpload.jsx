@@ -1,276 +1,239 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { motion, useMotionValue, useTransform } from 'framer-motion';
-import { FiCamera, FiCircle, FiCode, FiFileText, FiLayers, FiLayout } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import ImageUpload from './ImageUpload';
-
-import './DocumentUpload.css';
 
 const DEFAULT_ITEMS = [
     {
         title: 'Contractor Name',
         description: 'Upload contractor information.',
         id: 1,
-        icon: <FiCircle className="carousel-icon" />
     },
     {
         title: 'DBA',
         description: 'Upload DBA information.',
         id: 2,
-        icon: <FiCircle className="carousel-icon" />
     },
     {
         title: 'Contractor License',
-        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
         description: 'Upload contractor license',
         id: 3,
-        icon: <FiCamera className="carousel-icon" />
+        hasUpload: true,
     },
     {
         title: 'Forklift Certificate',
-        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
         description: 'Upload forklift certificate.',
         id: 4,
-        icon: <FiCamera className="carousel-icon" />
+        hasUpload: true,
     },
     {
         title: 'Scissor Lift Certificate',
-        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
         description: 'Upload scissor lift certificate.',
         id: 5,
-        icon: <FiCamera className="carousel-icon" />
+        hasUpload: true,
     },
     {
         title: 'OSHA Certificate',
         description: 'Upload OSHA certificate.',
-        component: <ImageUpload uploadUrl="/upload" onUploaded={(data) => console.log(data)} />,
         id: 6,
-        icon: <FiCamera className="carousel-icon" />
+        hasUpload: true,
     }
 ];
 
-const DRAG_BUFFER = 0;
-const VELOCITY_THRESHOLD = 500;
-const GAP = 16;
-const SPRING_OPTIONS = { type: 'spring', stiffness: 300, damping: 30 };
+export default function DocumentUpload({ items = DEFAULT_ITEMS, baseWidth = 300 }) {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [fadeAnim] = useState(new Animated.Value(1));
 
-function CarouselItem({ item, index, itemWidth, round, trackItemOffset, x, transition }) {
-    const range = [-(index + 1) * trackItemOffset, -index * trackItemOffset, -(index - 1) * trackItemOffset];
-    const outputRange = [90, 0, -90];
-    const rotateY = useTransform(x, range, outputRange, { clamp: false });
+    const currentItem = items[activeIndex];
+
+    const handleNext = () => {
+        if (activeIndex < items.length - 1) {
+            Animated.sequence([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+            setActiveIndex(activeIndex + 1);
+        }
+    };
+
+    const handlePrev = () => {
+        if (activeIndex > 0) {
+            Animated.sequence([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+            setActiveIndex(activeIndex - 1);
+        }
+    };
+
+    const handleIndicatorPress = (index) => {
+        if (index !== activeIndex) {
+            Animated.sequence([
+                Animated.timing(fadeAnim, {
+                    toValue: 0,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(fadeAnim, {
+                    toValue: 1,
+                    duration: 150,
+                    useNativeDriver: true,
+                }),
+            ]).start();
+            setActiveIndex(index);
+        }
+    };
 
     return (
-        <motion.div
-            key={`${item?.id ?? index}-${index}`}
-            className={`carousel-item ${round ? 'round' : ''}`}
-            style={{
-                width: itemWidth,
-                height: round ? itemWidth : '100%',
-                rotateY: rotateY,
-                ...(round && { borderRadius: '50%' })
-            }}
-            transition={transition}
-        >
-            <div className={`carousel-item-header ${round ? 'round' : ''}`}>
-                <span className="carousel-icon-container">{item.icon}</span>
-            </div>
-            <div className="carousel-item-content">
-                <div className="carousel-item-title">{item.title}</div>
-                <p className="carousel-item-description">{item.description}</p>
-                {item.component && (
-                    <div className="carousel-item-component">{item.component}</div>
-                )}
-            </div>
-        </motion.div>
-    );
-}
+        <ScrollView style={styles.container}>
+            <Text style={styles.title}>Upload Documents</Text>
 
-export default function DocumentUpload({
-    items = DEFAULT_ITEMS,
-    baseWidth = 300,
-    autoplay = false,
-    autoplayDelay = 3000,
-    pauseOnHover = false,
-    loop = false,
-    round = false
-}) {
-    const containerPadding = 16;
-    const itemWidth = baseWidth - containerPadding * 2;
-    const trackItemOffset = itemWidth + GAP;
-    const itemsForRender = useMemo(() => {
-        if (!loop) return items;
-        if (items.length === 0) return [];
-        return [items[items.length - 1], ...items, items[0]];
-    }, [items, loop]);
+            <View style={[styles.itemContainer, { width: baseWidth }]}>
+                <View style={styles.itemHeader}>
+                    <Text style={styles.itemTitle}>{currentItem.title}</Text>
+                </View>
 
-    const [position, setPosition] = useState(loop ? 1 : 0);
-    const x = useMotionValue(0);
-    const [isHovered, setIsHovered] = useState(false);
-    const [isJumping, setIsJumping] = useState(false);
-    const [isAnimating, setIsAnimating] = useState(false);
+                <Animated.View style={[styles.itemContent, { opacity: fadeAnim }]}>
+                    <Text style={styles.itemDescription}>{currentItem.description}</Text>
 
-    const containerRef = useRef(null);
-    useEffect(() => {
-        if (pauseOnHover && containerRef.current) {
-            const container = containerRef.current;
-            const handleMouseEnter = () => setIsHovered(true);
-            const handleMouseLeave = () => setIsHovered(false);
-            container.addEventListener('mouseenter', handleMouseEnter);
-            container.addEventListener('mouseleave', handleMouseLeave);
-            return () => {
-                container.removeEventListener('mouseenter', handleMouseEnter);
-                container.removeEventListener('mouseleave', handleMouseLeave);
-            };
-        }
-    }, [pauseOnHover]);
+                    {currentItem.hasUpload && (
+                        <View style={styles.uploadContainer}>
+                            <ImageUpload
+                                uploadUrl="/upload"
+                                onUploaded={(data) => console.log(data)}
+                            />
+                        </View>
+                    )}
+                </Animated.View>
+            </View>
 
-    useEffect(() => {
-        if (!autoplay || itemsForRender.length <= 1) return undefined;
-        if (pauseOnHover && isHovered) return undefined;
+            <View style={styles.controlsContainer}>
+                <TouchableOpacity
+                    style={[styles.button, activeIndex === 0 && styles.buttonDisabled]}
+                    onPress={handlePrev}
+                    disabled={activeIndex === 0}
+                >
+                    <Text style={styles.buttonText}>Previous</Text>
+                </TouchableOpacity>
 
-        const timer = setInterval(() => {
-            setPosition(prev => Math.min(prev + 1, itemsForRender.length - 1));
-        }, autoplayDelay);
-
-        return () => clearInterval(timer);
-    }, [autoplay, autoplayDelay, isHovered, pauseOnHover, itemsForRender.length]);
-
-    useEffect(() => {
-        const startingPosition = loop ? 1 : 0;
-        setPosition(startingPosition);
-        x.set(-startingPosition * trackItemOffset);
-    }, [items.length, loop, trackItemOffset, x]);
-
-    useEffect(() => {
-        if (!loop && position > itemsForRender.length - 1) {
-            setPosition(Math.max(0, itemsForRender.length - 1));
-        }
-    }, [itemsForRender.length, loop, position]);
-
-    const effectiveTransition = isJumping ? { duration: 0 } : SPRING_OPTIONS;
-
-    const handleAnimationStart = () => {
-        setIsAnimating(true);
-    };
-
-    const handleAnimationComplete = () => {
-        if (!loop || itemsForRender.length <= 1) {
-            setIsAnimating(false);
-            return;
-        }
-        const lastCloneIndex = itemsForRender.length - 1;
-
-        if (position === lastCloneIndex) {
-            setIsJumping(true);
-            const target = 1;
-            setPosition(target);
-            x.set(-target * trackItemOffset);
-            requestAnimationFrame(() => {
-                setIsJumping(false);
-                setIsAnimating(false);
-            });
-            return;
-        }
-
-        if (position === 0) {
-            setIsJumping(true);
-            const target = items.length;
-            setPosition(target);
-            x.set(-target * trackItemOffset);
-            requestAnimationFrame(() => {
-                setIsJumping(false);
-                setIsAnimating(false);
-            });
-            return;
-        }
-
-        setIsAnimating(false);
-    };
-
-    const handleDragEnd = (_, info) => {
-        const { offset, velocity } = info;
-        const direction =
-            offset.x < -DRAG_BUFFER || velocity.x < -VELOCITY_THRESHOLD
-                ? 1
-                : offset.x > DRAG_BUFFER || velocity.x > VELOCITY_THRESHOLD
-                    ? -1
-                    : 0;
-
-        if (direction === 0) return;
-
-        setPosition(prev => {
-            const next = prev + direction;
-            const max = itemsForRender.length - 1;
-            return Math.max(0, Math.min(next, max));
-        });
-    };
-
-    const dragProps = loop
-        ? {}
-        : {
-            dragConstraints: {
-                left: -trackItemOffset * Math.max(itemsForRender.length - 1, 0),
-                right: 0
-            }
-        };
-
-    const activeIndex =
-        items.length === 0 ? 0 : loop ? (position - 1 + items.length) % items.length : Math.min(position, items.length - 1);
-
-    return (
-        <div
-            ref={containerRef}
-            className={`carousel-container ${round ? 'round' : ''}`}
-            style={{
-                width: `${baseWidth}px`,
-                ...(round && { height: `${baseWidth}px`, borderRadius: '50%' })
-            }}
-        >
-            <h1>Upload Documents</h1>
-            <motion.div
-                className="carousel-track"
-                drag={isAnimating ? false : 'x'}
-                {...dragProps}
-                style={{
-                    width: itemWidth,
-                    gap: `${GAP}px`,
-                    perspective: 1000,
-                    perspectiveOrigin: `${position * trackItemOffset + itemWidth / 2}px 50%`,
-                    x
-                }}
-                onDragEnd={handleDragEnd}
-                animate={{ x: -(position * trackItemOffset) }}
-                transition={effectiveTransition}
-                onAnimationStart={handleAnimationStart}
-                onAnimationComplete={handleAnimationComplete}
-            >
-                {itemsForRender.map((item, index) => (
-                    <CarouselItem
-                        key={`${item?.id ?? index}-${index}`}
-                        item={item}
-                        index={index}
-                        itemWidth={itemWidth}
-                        round={round}
-                        trackItemOffset={trackItemOffset}
-                        x={x}
-                        transition={effectiveTransition}
-                    />
-                ))}
-            </motion.div>
-            <div className={`carousel-indicators-container ${round ? 'round' : ''}`}>
-                <div className="carousel-indicators">
+                <View style={styles.indicatorContainer}>
                     {items.map((_, index) => (
-                        <motion.div
+                        <TouchableOpacity
                             key={index}
-                            className={`carousel-indicator ${activeIndex === index ? 'active' : 'inactive'}`}
-                            animate={{
-                                scale: activeIndex === index ? 1.2 : 1
-                            }}
-                            onClick={() => setPosition(loop ? index + 1 : index)}
-                            transition={{ duration: 0.15 }}
+                            style={[
+                                styles.indicator,
+                                activeIndex === index && styles.indicatorActive
+                            ]}
+                            onPress={() => handleIndicatorPress(index)}
                         />
                     ))}
-                </div>
-            </div>
-        </div>
+                </View>
+
+                <TouchableOpacity
+                    style={[styles.button, activeIndex === items.length - 1 && styles.buttonDisabled]}
+                    onPress={handleNext}
+                    disabled={activeIndex === items.length - 1}
+                >
+                    <Text style={styles.buttonText}>Next</Text>
+                </TouchableOpacity>
+            </View>
+        </ScrollView>
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: '#fff',
+    },
+    title: {
+        fontSize: 24,
+        fontWeight: '600',
+        marginBottom: 16,
+        color: '#000',
+    },
+    itemContainer: {
+        borderWidth: 1,
+        borderColor: '#555',
+        borderRadius: 12,
+        backgroundColor: '#56545a',
+        overflow: 'hidden',
+        marginBottom: 16,
+    },
+    itemHeader: {
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#444',
+    },
+    itemTitle: {
+        fontSize: 18,
+        fontWeight: '900',
+        color: '#fff',
+    },
+    itemContent: {
+        padding: 16,
+    },
+    itemDescription: {
+        fontSize: 14,
+        color: '#fff',
+        marginBottom: 12,
+    },
+    uploadContainer: {
+        marginTop: 12,
+    },
+    controlsContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    button: {
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        backgroundColor: '#007aff',
+        borderRadius: 8,
+    },
+    buttonDisabled: {
+        backgroundColor: '#ccc',
+        opacity: 0.5,
+    },
+    buttonText: {
+        color: '#fff',
+        fontWeight: '600',
+        fontSize: 14,
+    },
+    indicatorContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        flex: 1,
+        gap: 8,
+    },
+    indicator: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: '#555',
+    },
+    indicatorActive: {
+        backgroundColor: '#fff',
+        width: 10,
+        height: 10,
+        borderRadius: 5,
+    },
+});

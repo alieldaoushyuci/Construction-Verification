@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "expo": "~54.0.25",
+    "expo-image-picker": "^17.0.10",
     "expo-status-bar": "~3.0.8",
     "framer-motion": "^12.23.26",
     "react": "19.1.0",

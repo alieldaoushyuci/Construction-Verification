@@ -4,7 +4,7 @@ import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
 import Footer from './components/Footer';
 import AccountInfo from './components/AccountInfo';
 import InsuranceSignIn from './components/InsuranceSignIn';
-import DocumentUpload from './components/DocumentUpload/DocumentUpload';
+import DocumentUpload from './components/DocumentUpload';
 import Settings from './components/Settings';
 
 export default function App() {
