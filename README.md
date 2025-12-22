@@ -190,17 +190,12 @@ This section explains the organization of the mobile app files in the `my-app/` 
 
 ```
 my-app/
-├── screens/           # Full-screen components (pages/views)
-│   └── LoginScreen.jsx
 │
 ├── components/        # Reusable UI components (create when needed)
-│   └── (empty for now - add reusable components here)
+│
 │
 ├── services/          # External services and API clients
 │   └── supabase.js   # Supabase database client
-│
-├── constants/         # App-wide constants and configuration
-│   └── (empty for now - add constants here)
 │
 ├── assets/           # Static assets (images, fonts, etc.)
 │   ├── icon.png
@@ -214,13 +209,6 @@ my-app/
 ```
 
 ### Folder Purposes
-
-#### `/screens`
-
-Full-screen components that represent different pages/views in your app.
-
-- Each file represents a complete screen
-- Example: `LoginScreen.jsx`, `DashboardScreen.jsx`, `ProfileScreen.jsx`
 
 #### `/components`
 
@@ -237,15 +225,6 @@ External service integrations and API clients.
 - Third-party API integrations
 - Authentication services
 
-#### `/constants`
-
-App-wide constants, configuration values, and enums.
-
-- API endpoints
-- App configuration
-- Color themes
-- Example: `colors.js`, `config.js`
-
 #### `/assets`
 
 Static files like images, fonts, and other media.
@@ -254,19 +233,6 @@ Static files like images, fonts, and other media.
 - Splash screens
 - Images used in the app
 
-### Best Practices
-
-1. **Screens vs Components**: If it's a full page/view, put it in `screens/`. If it's reusable UI, put it in `components/`.
-
-2. **Naming**: Use PascalCase for component files (e.g., `LoginScreen.jsx`)
-
-3. **Imports**: Use relative paths from the file location
-
-   - From screen to service: `../services/supabase`
-   - From component to screen: `../screens/LoginScreen`
-
-4. **Keep it organized**: As the app grows, this structure will help you find files quickly.
-
 ---
 
 ## Repository Structure
@@ -274,7 +240,7 @@ Static files like images, fonts, and other media.
 ```
 /Construction-Verification
 ├── my-app/           # Mobile app (React Native/Expo)
-├── backend/         # API and data validation (if applicable)
+├── backend/          # API and data validation (if applicable)
 ├── docs/             # Documentation and contracts
 ├── tests/            # Unit and integration tests
 └── README.md         # This file
