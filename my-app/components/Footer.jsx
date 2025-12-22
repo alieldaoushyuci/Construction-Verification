@@ -52,7 +52,7 @@ export default function Footer({ onNavigate } = {}) {
 }
 
 const styles = StyleSheet.create({
-    container: { flexDirection: 'row', justifyContent: 'space-around', padding: 12, borderTopWidth: 1, borderColor: '#eee' },
+    container: { flexDirection: 'row', justifyContent: 'space-around', padding: 12, borderTopWidth: 1, borderColor: '#333', backgroundColor: '#000' },
     button: { padding: 8 },
     text: { color: '#007aff', fontSize: 14 },
 });

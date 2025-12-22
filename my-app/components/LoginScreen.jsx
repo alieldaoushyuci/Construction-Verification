@@ -13,7 +13,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { supabase } from "../services/supabase";
 
-export default function LoginScreen() {
+export default function LoginScreen({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,9 +45,10 @@ export default function LoginScreen() {
       } else {
         console.log("✓ Login successful");
         Alert.alert("Success", `Welcome, ${data.user.email}!`);
-        // TODO: Navigate to main app screen
-        // User session is automatically managed by Supabase
-        // Access user data: data.user
+        // Call the callback to notify parent component of successful login
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -114,6 +115,10 @@ export default function LoginScreen() {
             "Success",
             "Account created successfully! You can now sign in."
           );
+          // If session exists, user is automatically logged in
+          if (data.session && onLoginSuccess) {
+            onLoginSuccess();
+          }
         }
 
         // Switch to sign in mode
