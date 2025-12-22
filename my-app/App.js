@@ -25,8 +25,8 @@ export default function App() {
         return <InsuranceSignIn />;
       case '/DocumentUpload':
         return (
-          <View style={styles.center}>
-            <DocumentUpload baseWidth={500} />
+          <View style={styles.documentUploadContainer}>
+            <DocumentUpload />
           </View>
         );
       case '/Settings':
@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
   contentContainer: { flex: 1, overflow: 'auto' },
   content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  documentUploadContainer: { flex: 1, width: '100%' },
   title: { fontSize: 24, fontWeight: '600', marginBottom: 8 },
   subtitle: { fontSize: 16, color: '#444' },
 });

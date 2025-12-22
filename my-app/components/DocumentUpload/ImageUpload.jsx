@@ -2,10 +2,70 @@ import React, { useRef, useState } from 'react';
 import { View, TouchableOpacity, Text, StyleSheet, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
-export default function ImageUpload({ uploadUrl = '/upload', onUploaded } = {}) {
+export default function ImageUpload({ uploadUrl = '/upload', onUploaded, itemId, status: externalStatus, error: externalError } = {}) {
     const inputRef = useRef(null);
-    const [status, setStatus] = useState('idle'); // 'idle' | 'uploading' | 'success' | 'error'
-    const [error, setError] = useState(null);
+    const [internalStatus, setInternalStatus] = useState('idle');
+    const [internalError, setInternalError] = useState(null);
+
+    // Use external status if provided (managed by parent), otherwise use internal state
+    const status = externalStatus !== undefined ? externalStatus : internalStatus;
+    const error = externalError !== undefined ? externalError : internalError;
+
+    const uploadImage = async (fileOrUri, mimeType) => {
+        setInternalStatus('uploading');
+        setInternalError(null);
+        // Notify parent immediately that upload is starting
+        if (typeof onUploaded === 'function') onUploaded({ status: 'uploading', itemId });
+
+        try {
+            const formData = new FormData();
+
+            // For native apps, convert relative URLs to absolute
+            let fullUploadUrl = uploadUrl;
+            if (Platform.OS !== 'web' && uploadUrl.startsWith('/')) {
+                // On native, use localhost with default expo server port
+                fullUploadUrl = 'http://localhost:3000' + uploadUrl;
+            }
+
+            if (typeof fileOrUri === 'string') {
+                // Native path - fileOrUri is a URI string
+                const fileName = fileOrUri.split('/').pop() || 'image.jpg';
+                formData.append('image', {
+                    uri: fileOrUri,
+                    name: fileName,
+                    type: mimeType || 'image/jpeg',
+                });
+            } else {
+                // Web path - fileOrUri is a File object
+                formData.append('image', fileOrUri);
+            }
+
+            const res = await fetch(fullUploadUrl, {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await res.json().catch(() => ({}));
+
+            if (!res.ok) throw new Error(data.message || `Upload failed (${res.status})`);
+
+            setInternalStatus('success');
+            if (typeof onUploaded === 'function') onUploaded({ data, status: 'success', itemId });
+        } catch (err) {
+            const errorMsg = err.message || 'Upload error';
+            setInternalError(errorMsg);
+            setInternalStatus('error');
+            if (typeof onUploaded === 'function') onUploaded({ error: errorMsg, status: 'error', itemId });
+        }
+    };
+
+    const handleChange = async (e) => {
+        e.stopPropagation?.();
+        const file = e.target?.files?.[0];
+        if (!file) return;
+
+        await uploadImage(file);
+    };
 
     const openPicker = async (e) => {
         if (e) {
@@ -27,85 +87,11 @@ export default function ImageUpload({ uploadUrl = '/upload', onUploaded } = {}) 
                     await uploadImage(asset.uri, asset.type || 'image/jpeg');
                 }
             } catch (err) {
-                setError(err.message || 'Failed to open image picker');
-                setStatus('error');
+                const errorMsg = err.message || 'Failed to open image picker';
+                setInternalError(errorMsg);
+                setInternalStatus('error');
+                if (typeof onUploaded === 'function') onUploaded({ error: errorMsg, status: 'error', itemId });
             }
-        }
-    };
-
-    const uploadImage = async (uri, mimeType) => {
-        setStatus('uploading');
-        setError(null);
-
-        try {
-            const formData = new FormData();
-            const fileName = uri.split('/').pop() || 'image.jpg';
-
-            formData.append('image', {
-                uri,
-                name: fileName,
-                type: mimeType,
-            });
-
-            const res = await fetch(uploadUrl, {
-                method: 'POST',
-                body: formData,
-            });
-
-            const data = await res.json().catch(() => ({}));
-
-            if (!res.ok) throw new Error(data.message || `Upload failed (${res.status})`);
-
-            setStatus('success');
-            if (typeof onUploaded === 'function') onUploaded(data);
-        } catch (err) {
-            setError(err.message || 'Upload error');
-            setStatus('error');
-        }
-    };
-
-    const handleChange = async (e) => {
-        e.stopPropagation?.();
-        const file = e.target?.files?.[0];
-        if (!file) return;
-
-        await uploadImage(file);
-    };
-
-    const uploadImage = async (fileOrUri, mimeType) => {
-        setStatus('uploading');
-        setError(null);
-
-        try {
-            const formData = new FormData();
-
-            if (typeof fileOrUri === 'string') {
-                // Native path - fileOrUri is a URI string
-                const fileName = fileOrUri.split('/').pop() || 'image.jpg';
-                formData.append('image', {
-                    uri: fileOrUri,
-                    name: fileName,
-                    type: mimeType || 'image/jpeg',
-                });
-            } else {
-                // Web path - fileOrUri is a File object
-                formData.append('image', fileOrUri);
-            }
-
-            const res = await fetch(uploadUrl, {
-                method: 'POST',
-                body: formData,
-            });
-
-            const data = await res.json().catch(() => ({}));
-
-            if (!res.ok) throw new Error(data.message || `Upload failed (${res.status})`);
-
-            setStatus('success');
-            if (typeof onUploaded === 'function') onUploaded(data);
-        } catch (err) {
-            setError(err.message || 'Upload error');
-            setStatus('error');
         }
     };
 
@@ -125,8 +111,8 @@ export default function ImageUpload({ uploadUrl = '/upload', onUploaded } = {}) 
                     {status === 'uploading' ? 'Uploading...' : 'Upload Image'}
                 </button>
 
-                {status === 'success' && <div className="upload-success">Upload successful</div>}
-                {status === 'error' && <div className="upload-error">Error: {error}</div>}
+                {status === 'success' && externalStatus !== undefined && <div className="upload-success">Upload successful</div>}
+                {status === 'error' && externalStatus !== undefined && <div className="upload-error">Error: {error}</div>}
             </div>
         );
     }
@@ -144,10 +130,10 @@ export default function ImageUpload({ uploadUrl = '/upload', onUploaded } = {}) 
                 </Text>
             </TouchableOpacity>
 
-            {status === 'success' && (
+            {status === 'success' && externalStatus !== undefined && (
                 <Text style={styles.successText}>Upload successful</Text>
             )}
-            {status === 'error' && (
+            {status === 'error' && externalStatus !== undefined && (
                 <Text style={styles.errorText}>Error: {error}</Text>
             )}
         </View>

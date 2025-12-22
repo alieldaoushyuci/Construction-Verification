@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Animated } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import ImageUpload from './ImageUpload';
 
 const DEFAULT_ITEMS = [
@@ -39,11 +39,25 @@ const DEFAULT_ITEMS = [
     }
 ];
 
-export default function DocumentUpload({ items = DEFAULT_ITEMS, baseWidth = 300 }) {
+export default function DocumentUpload({ items = DEFAULT_ITEMS }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [fadeAnim] = useState(new Animated.Value(1));
+    const [uploadStatuses, setUploadStatuses] = useState({}); // Track status per item ID
+
+    // Get responsive width - use 100% of available width minus padding
+    const windowWidth = Dimensions.get('window').width;
+    const containerPadding = 16;
+    const maxWidth = Math.min(windowWidth - containerPadding * 2, 500);
 
     const currentItem = items[activeIndex];
+
+    const handleUploadStatusChange = (result) => {
+        const { itemId, status, error } = result;
+        setUploadStatuses(prev => ({
+            ...prev,
+            [itemId]: { status, error }
+        }));
+    };
 
     const handleNext = () => {
         if (activeIndex < items.length - 1) {
@@ -100,10 +114,10 @@ export default function DocumentUpload({ items = DEFAULT_ITEMS, baseWidth = 300 
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Text style={styles.title}>Upload Documents</Text>
 
-            <View style={[styles.itemContainer, { width: baseWidth }]}>
+            <View style={[styles.itemContainer, { width: maxWidth }]}>
                 <View style={styles.itemHeader}>
                     <Text style={styles.itemTitle}>{currentItem.title}</Text>
                 </View>
@@ -115,7 +129,10 @@ export default function DocumentUpload({ items = DEFAULT_ITEMS, baseWidth = 300 
                         <View style={styles.uploadContainer}>
                             <ImageUpload
                                 uploadUrl="/upload"
-                                onUploaded={(data) => console.log(data)}
+                                itemId={currentItem.id}
+                                status={uploadStatuses[currentItem.id]?.status}
+                                error={uploadStatuses[currentItem.id]?.error}
+                                onUploaded={handleUploadStatusChange}
                             />
                         </View>
                     )}
@@ -162,6 +179,10 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: '#fff',
     },
+    contentContainer: {
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
     title: {
         fontSize: 24,
         fontWeight: '600',
@@ -175,6 +196,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#56545a',
         overflow: 'hidden',
         marginBottom: 16,
+        alignSelf: 'center',
     },
     itemHeader: {
         padding: 16,
@@ -202,12 +224,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         gap: 12,
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        flexWrap: 'wrap',
     },
     button: {
         paddingHorizontal: 16,
         paddingVertical: 10,
         backgroundColor: '#007aff',
         borderRadius: 8,
+        minWidth: 70,
     },
     buttonDisabled: {
         backgroundColor: '#ccc',
@@ -217,12 +243,15 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
         fontSize: 14,
+        textAlign: 'center',
     },
     indicatorContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         flex: 1,
         gap: 8,
+        flexWrap: 'wrap',
+        minWidth: 100,
     },
     indicator: {
         width: 8,
