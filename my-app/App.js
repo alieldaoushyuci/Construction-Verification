@@ -6,7 +6,7 @@ import Footer from "./components/Footer";
 import LoginScreen from "./components/LoginScreen";
 import AccountInfo from "./components/AccountInfo";
 import InsuranceSignIn from "./components/InsuranceSignIn";
-import DocumentUpload from "./components/DocumentUpload";
+import DocumentUpload from "./components/DocumentUpload/";
 import Settings from "./components/Settings";
 import { supabase } from "./services/supabase";
 
