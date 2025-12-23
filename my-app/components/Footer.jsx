@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function Footer({ onNavigate } = {}) {
     const links = [
@@ -13,26 +13,7 @@ export default function Footer({ onNavigate } = {}) {
     function handlePress(path) {
         if (onNavigate && typeof onNavigate === 'function') {
             onNavigate(path);
-            return;
         }
-
-        if (Platform.OS === 'web') {
-            window.location.assign(path);
-            return;
-        }
-
-    }
-
-    if (Platform.OS === 'web') {
-        return (
-            <View style={styles.container}>
-                {links.map((l) => (
-                    <a key={l.path} href={l.path} style={webStyles.link}>
-                        {l.label}
-                    </a>
-                ))}
-            </View>
-        );
     }
 
     return (
@@ -51,12 +32,3 @@ const styles = StyleSheet.create({
     button: { padding: 8 },
     text: { color: '#007aff', fontSize: 14 },
 });
-
-const webStyles = {
-    link: {
-        color: '#007aff',
-        textDecoration: 'none',
-        padding: 8,
-        fontSize: 14,
-    },
-};

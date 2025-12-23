@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Platform } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import Footer from "./components/Footer";
 import LoginScreen from "./components/LoginScreen";
@@ -14,7 +14,6 @@ import { supabase } from "./services/supabase";
 export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  // For native, maintain internal route state. For web, use window.location.pathname.
   const [route, setRoute] = useState("/");
 
   // Check for existing session on mount and listen for auth changes
@@ -35,15 +34,8 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  const currentPath = useMemo(() => {
-    if (Platform.OS === "web" && typeof window !== "undefined") {
-      return window.location.pathname || "/";
-    }
-    return route || "/";
-  }, [route]);
-
   function renderContent() {
-    switch (currentPath) {
+    switch (route) {
       case "/AccountInfo":
         return <AccountInfo />;
       case "/InsuranceSignIn":
@@ -56,11 +48,6 @@ export default function App() {
         return (
           <HomeScreen
             onNavigate={(path) => {
-              if (Platform.OS === "web" && typeof window !== "undefined") {
-                window.history.pushState({}, "", path);
-                setRoute((r) => r);
-                return;
-              }
               setRoute(path);
             }}
           />
@@ -99,14 +86,6 @@ export default function App() {
 
         <Footer
           onNavigate={(path) => {
-            // If web, navigate to path so SPA updates URL; if native, update local route state
-            if (Platform.OS === "web" && typeof window !== "undefined") {
-              window.history.pushState({}, "", path);
-              // trigger re-render by forcing a small state change
-              // (we rely on useMemo reading window.location.pathname on next render)
-              setRoute((r) => r);
-              return;
-            }
             setRoute(path);
           }}
         />
@@ -123,13 +102,4 @@ const styles = StyleSheet.create({
     backgroundColor: "#000",
   },
   safe: { flex: 1, backgroundColor: "#000" },
-  content: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 16,
-    backgroundColor: "#000",
-  },
-  title: { fontSize: 24, fontWeight: "600", marginBottom: 8, color: "#fff" },
-  subtitle: { fontSize: 16, color: "#ccc" },
 });
