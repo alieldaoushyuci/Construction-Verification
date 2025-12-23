@@ -4,8 +4,14 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function AccountInfo() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Account Information</Text>
-            <Text style={styles.subtitle}>This is a skeleton account information page.</Text>
+            <h1>Account Information</h1>
+            <p style={styles.subtitle}>Email: john_doe</p>
+            <p style={styles.subtitle}>Contractor Name: ABC DEF</p>
+            <p style={styles.subtitle}>DBA: ABC DEF</p>
+            <p style={styles.subtitle}>Contractor License: Verified/Unverified</p>
+            <p style={styles.subtitle}>Forklift Certificate: Verified/Unverified</p>
+            <p style={styles.subtitle}>Scissor Lift Certificate: Verified/Unverified</p>
+            <p style={styles.subtitle}>OSHA Certificate: Verified/Unverified</p>
         </View>
     );
 }
