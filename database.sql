@@ -1,4 +1,5 @@
--- Useful for when you need clarification on how data is stored.
+-- Useful for when you need clarification on how data is stored. 
+-- NOT USED ANYWHERE EXCEPT FOR READABILITY.
 
 -- Create profiles table
 CREATE TABLE public.profiles (
