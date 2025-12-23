@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
-export default function InsuranceSignIn() {
+export default function DocumentUpload() {
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Insurance Sign In</Text>
-            <Text style={styles.subtitle}>Skeleton insurance sign-in page.</Text>
+            <Text style={styles.title}>Document Upload</Text>
+            <Text style={styles.subtitle}>Skeleton document upload page.</Text>
         </View>
     );
 }

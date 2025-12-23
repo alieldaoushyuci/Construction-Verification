@@ -1,72 +1,130 @@
-import React, { useState, useMemo } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, Platform } from 'react-native';
-import Footer from './components/Footer';
-import AccountInfo from './components/AccountInfo';
-import InsuranceSignIn from './components/InsuranceSignIn';
-import DocumentUpload from './components/DocumentUpload';
-import Settings from './components/Settings';
+import React, { useState, useMemo, useEffect } from "react";
+import { StatusBar } from "expo-status-bar";
+import { StyleSheet, Text, View, Platform } from "react-native";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import Footer from "./components/Footer";
+import LoginScreen from "./components/LoginScreen";
+import AccountInfo from "./components/AccountInfo";
+import InsuranceSignIn from "./components/InsuranceSignIn";
+import DocumentUpload from "./components/DocumentUpload";
+import Settings from "./components/Settings";
+import { supabase } from "./services/supabase";
 
 export default function App() {
-  const [route, setRoute] = useState('/');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  // For native, maintain internal route state. For web, use window.location.pathname.
+  const [route, setRoute] = useState("/");
+
+  // Check for existing session on mount and listen for auth changes
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+      setIsLoading(false);
+    });
+
+    // Listen for auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const currentPath = useMemo(() => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined') {
-      return window.location.pathname || '/';
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      return window.location.pathname || "/";
     }
-    return route || '/';
+    return route || "/";
   }, [route]);
 
   function renderContent() {
     switch (currentPath) {
-      case '/AccountInfo':
+      case "/AccountInfo":
         return <AccountInfo />;
-      case '/InsuranceSignIn':
+      case "/InsuranceSignIn":
         return <InsuranceSignIn />;
-      case '/DocumentUpload':
-        return (
-          <View style={styles.documentUploadContainer}>
-            <DocumentUpload />
-          </View>
-        );
-      case '/Settings':
+      case "/DocumentUpload":
+        return <DocumentUpload />;
+      case "/Settings":
         return <Settings />;
       default:
         return (
           <View style={styles.content}>
             <Text style={styles.title}>Home Page</Text>
-            <Text style={styles.subtitle}>Welcome — use the footer links to navigate.</Text>
+            <Text style={styles.subtitle}>
+              Welcome — use the footer links to navigate.
+            </Text>
           </View>
         );
     }
   }
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <SafeAreaProvider>
+        <View style={styles.container}>
+          <StatusBar style="light" />
+        </View>
+      </SafeAreaProvider>
+    );
+  }
+
+  // Show login screen if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <SafeAreaProvider>
+        <View style={styles.container}>
+          <LoginScreen onLoginSuccess={() => setIsAuthenticated(true)} />
+          <StatusBar style="light" />
+        </View>
+      </SafeAreaProvider>
+    );
+  }
+
+  // Show main app with footer if authenticated
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.contentContainer}>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
         {renderContent()}
-      </View>
 
-      <Footer onNavigate={(path) => {
-        if (Platform.OS === 'web' && typeof window !== 'undefined') {
-          window.history.pushState({}, '', path);
-          setRoute((r) => r);
-          return;
-        }
-        setRoute(path);
-      }} />
+        <Footer
+          onNavigate={(path) => {
+            // If web, navigate to path so SPA updates URL; if native, update local route state
+            if (Platform.OS === "web" && typeof window !== "undefined") {
+              window.history.pushState({}, "", path);
+              // trigger re-render by forcing a small state change
+              // (we rely on useMemo reading window.location.pathname on next render)
+              setRoute((r) => r);
+              return;
+            }
+            setRoute(path);
+          }}
+        />
 
-      <StatusBar style="auto" />
-    </SafeAreaView>
+        <StatusBar style="auto" />
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#fff' },
-  contentContainer: { flex: 1, overflow: 'auto' },
-  content: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  documentUploadContainer: { flex: 1, width: '100%' },
-  title: { fontSize: 24, fontWeight: '600', marginBottom: 8 },
-  subtitle: { fontSize: 16, color: '#444' },
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  safe: { flex: 1, backgroundColor: "#000" },
+  content: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 16,
+    backgroundColor: "#000",
+  },
+  title: { fontSize: 24, fontWeight: "600", marginBottom: 8, color: "#fff" },
+  subtitle: { fontSize: 16, color: "#ccc" },
 });
