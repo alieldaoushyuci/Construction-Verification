@@ -17,6 +17,8 @@ export default function LoginScreen({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +46,31 @@ export default function LoginScreen({ onLoginSuccess }) {
         Alert.alert("Error", error.message || "Invalid email or password.");
       } else {
         console.log("✓ Login successful");
-        Alert.alert("Success", `Welcome, ${data.user.email}!`);
+
+        let firstNameForWelcome = "";
+
+        // Update last_accessed timestamp in profile and fetch first name
+        if (data.user) {
+          const { data: profileData, error: profileError } = await supabase
+            .from("profiles")
+            .update({ last_accessed: new Date().toISOString() })
+            .eq("id", data.user.id)
+            .select("first_name")
+            .single();
+
+          if (profileError) {
+            console.error(
+              "Failed to update last_accessed or fetch profile:",
+              profileError
+            );
+            // Don't fail login if this update fails
+          } else if (profileData && profileData.first_name) {
+            firstNameForWelcome = profileData.first_name;
+          }
+        }
+
+        const nameOrEmail = firstNameForWelcome || data.user.email;
+        Alert.alert("Success", `Welcome, ${nameOrEmail}!`);
         // Call the callback to notify parent component of successful login
         if (onLoginSuccess) {
           onLoginSuccess();
@@ -62,8 +88,16 @@ export default function LoginScreen({ onLoginSuccess }) {
     const trimmedEmail = email.trim().toLowerCase();
     const trimmedPassword = password.trim();
     const trimmedConfirmPassword = confirmPassword.trim();
+    const trimmedFirstName = firstName.trim();
+    const trimmedLastName = lastName.trim();
 
-    if (!trimmedEmail || !trimmedPassword || !trimmedConfirmPassword) {
+    if (
+      !trimmedEmail ||
+      !trimmedPassword ||
+      !trimmedConfirmPassword ||
+      !trimmedFirstName ||
+      !trimmedLastName
+    ) {
       Alert.alert("Error", "Please fill in all fields.");
       return;
     }
@@ -104,6 +138,26 @@ export default function LoginScreen({ onLoginSuccess }) {
       } else {
         console.log("✓ New user created successfully");
 
+        // Update profile with first_name and last_name
+        // The trigger already created the profile with id and email
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .update({
+              first_name: trimmedFirstName,
+              last_name: trimmedLastName,
+            })
+            .eq("id", data.user.id);
+
+          if (profileError) {
+            console.error("Profile update error:", profileError);
+            Alert.alert(
+              "Warning",
+              "Account created but failed to save name. You can update it later in settings."
+            );
+          }
+        }
+
         // Check if email confirmation is required
         if (data.user && !data.session) {
           Alert.alert(
@@ -125,6 +179,8 @@ export default function LoginScreen({ onLoginSuccess }) {
         setIsSignUp(false);
         setPassword("");
         setConfirmPassword("");
+        setFirstName("");
+        setLastName("");
       }
     } catch (error) {
       console.error("Sign up error:", error);
@@ -145,6 +201,38 @@ export default function LoginScreen({ onLoginSuccess }) {
       >
         <View style={styles.content}>
           <Text style={styles.title}>{isSignUp ? "Sign Up" : "Sign In"}</Text>
+
+          {isSignUp && (
+            <>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>First Name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your first name"
+                  placeholderTextColor="#888"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+              </View>
+
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Last Name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter your last name"
+                  placeholderTextColor="#888"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  autoCapitalize="words"
+                  autoCorrect={false}
+                  editable={!isLoading}
+                />
+              </View>
+            </>
+          )}
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
@@ -237,6 +325,8 @@ export default function LoginScreen({ onLoginSuccess }) {
               setEmail("");
               setPassword("");
               setConfirmPassword("");
+              setFirstName("");
+              setLastName("");
               setShowPassword(false);
               setShowConfirmPassword(false);
             }}
