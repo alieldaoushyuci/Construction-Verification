@@ -47,7 +47,7 @@ export default function DocumentUpload({ items = DEFAULT_ITEMS }) {
     // Get responsive width - use 100% of available width minus padding
     const windowWidth = Dimensions.get('window').width;
     const containerPadding = 16;
-    const maxWidth = Math.min(windowWidth - containerPadding * 2, 500);
+    const maxWidth = Math.min(windowWidth - containerPadding * 2, 800);
 
     const currentItem = items[activeIndex];
 
@@ -181,40 +181,41 @@ const styles = StyleSheet.create({
     },
     contentContainer: {
         alignItems: 'center',
-        justifyContent: 'flex-start',
+        justifyContent: 'center',
+        flexGrow: 1,
     },
     title: {
-        fontSize: 24,
+        fontSize: 32,
         fontWeight: '600',
-        marginBottom: 16,
+        marginBottom: 24,
         color: '#fff',
     },
     itemContainer: {
         borderWidth: 1,
         borderColor: '#555',
-        borderRadius: 12,
+        borderRadius: 16,
         backgroundColor: '#56545a',
         overflow: 'hidden',
-        marginBottom: 16,
+        marginBottom: 24,
         alignSelf: 'center',
     },
     itemHeader: {
-        padding: 16,
+        padding: 24,
         borderBottomWidth: 1,
         borderBottomColor: '#444',
     },
     itemTitle: {
-        fontSize: 18,
+        fontSize: 24,
         fontWeight: '900',
         color: '#fff',
     },
     itemContent: {
-        padding: 16,
+        padding: 24,
     },
     itemDescription: {
-        fontSize: 14,
+        fontSize: 18,
         color: '#fff',
-        marginBottom: 12,
+        marginBottom: 16,
     },
     uploadContainer: {
         marginTop: 12,
@@ -229,11 +230,11 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     button: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
+        paddingHorizontal: 24,
+        paddingVertical: 14,
         backgroundColor: '#007aff',
         borderRadius: 8,
-        minWidth: 70,
+        minWidth: 100,
     },
     buttonDisabled: {
         backgroundColor: '#ccc',
@@ -242,7 +243,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontWeight: '600',
-        fontSize: 14,
+        fontSize: 16,
         textAlign: 'center',
     },
     indicatorContainer: {
@@ -254,15 +255,15 @@ const styles = StyleSheet.create({
         minWidth: 100,
     },
     indicator: {
-        width: 8,
-        height: 8,
-        borderRadius: 4,
+        width: 10,
+        height: 10,
+        borderRadius: 5,
         backgroundColor: '#555',
     },
     indicatorActive: {
         backgroundColor: '#fff',
-        width: 10,
-        height: 10,
-        borderRadius: 5,
+        width: 12,
+        height: 12,
+        borderRadius: 6,
     },
 });

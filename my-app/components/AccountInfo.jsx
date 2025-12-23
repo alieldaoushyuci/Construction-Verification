@@ -4,20 +4,20 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function AccountInfo() {
     return (
         <View style={styles.container}>
-            <h1>Account Information</h1>
-            <p style={styles.subtitle}>Email: john_doe</p>
-            <p style={styles.subtitle}>Contractor Name: ABC DEF</p>
-            <p style={styles.subtitle}>DBA: ABC DEF</p>
-            <p style={styles.subtitle}>Contractor License: Verified/Unverified</p>
-            <p style={styles.subtitle}>Forklift Certificate: Verified/Unverified</p>
-            <p style={styles.subtitle}>Scissor Lift Certificate: Verified/Unverified</p>
-            <p style={styles.subtitle}>OSHA Certificate: Verified/Unverified</p>
+            <Text style={styles.title}>Account Information</Text>
+            <Text style={styles.subtitle}>Email: john_doe</Text>
+            <Text style={styles.subtitle}>Contractor Name: ABC DEF</Text>
+            <Text style={styles.subtitle}>DBA: ABC DEF</Text>
+            <Text style={styles.subtitle}>Contractor License: Verified/Unverified</Text>
+            <Text style={styles.subtitle}>Forklift Certificate: Verified/Unverified</Text>
+            <Text style={styles.subtitle}>Scissor Lift Certificate: Verified/Unverified</Text>
+            <Text style={styles.subtitle}>OSHA Certificate: Verified/Unverified</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 16, backgroundColor: '#000' },
-    title: { fontSize: 20, fontWeight: '600', marginBottom: 8, color: '#fff' },
-    subtitle: { fontSize: 14, color: '#ccc' },
+    title: { fontSize: 32, fontWeight: 'bold', marginBottom: 30, color: '#fff' },
+    subtitle: { fontSize: 16, color: '#fff', marginBottom: 8, fontWeight: '500' },
 });
