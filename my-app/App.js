@@ -7,7 +7,7 @@ import LoginScreen from "./components/LoginScreen";
 import AccountInfo from "./components/AccountInfo";
 import InsuranceSignIn from "./components/InsuranceSignIn";
 import DocumentUpload from "./components/DocumentUpload/DocumentUpload";
-import Settings from "./components/Settings";
+import Settings from "./components/Settings/Settings";
 import HomeScreen from "./components/HomeScreen/HomeScreen";
 import { supabase } from "./services/supabase";
 

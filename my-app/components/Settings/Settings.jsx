@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
   Alert,
@@ -11,9 +10,15 @@ import {
   Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { supabase } from "../services/supabase";
+import { supabase } from "../../services/supabase";
+import styles from "./Settings.styles";
 
 export default function Settings() {
+  const [currentEmail, setCurrentEmail] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [confirmEmail, setConfirmEmail] = useState("");
+  const [isLoadingEmail, setIsLoadingEmail] = useState(false);
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -21,6 +26,87 @@ export default function Settings() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+
+  const handleChangeEmail = async () => {
+    const trimmedCurrentEmail = currentEmail.trim();
+    const trimmedNewEmail = newEmail.trim();
+    const trimmedConfirmEmail = confirmEmail.trim();
+
+    // Validation
+    if (
+      !trimmedCurrentEmail ||
+      !trimmedNewEmail ||
+      !trimmedConfirmEmail
+    ) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
+
+    if (trimmedNewEmail !== trimmedConfirmEmail) {
+      Alert.alert("Error", "New emails do not match.");
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedNewEmail)) {
+      Alert.alert("Error", "Please enter a valid email address.");
+      return;
+    }
+
+    if (trimmedCurrentEmail === trimmedNewEmail) {
+      Alert.alert(
+        "Error",
+        "New email must be different from current email."
+      );
+      return;
+    }
+
+    try {
+      setIsLoadingEmail(true);
+
+      // Get the current user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+
+      if (userError || !user || !user.email) {
+        Alert.alert("Error", "Unable to retrieve user information.");
+        return;
+      }
+
+      // Verify current email matches
+      if (user.email.toLowerCase() !== trimmedCurrentEmail.toLowerCase()) {
+        Alert.alert("Error", "Current email does not match your account email.");
+        return;
+      }
+
+      // Update email
+      const { error: updateError } = await supabase.auth.updateUser({
+        email: trimmedNewEmail,
+      });
+
+      if (updateError) {
+        Alert.alert(
+          "Error",
+          updateError.message || "Failed to update email. Please try again."
+        );
+      } else {
+        Alert.alert("Success", "Email updated successfully! Please check your new email for verification.");
+        // Clear form
+        setCurrentEmail("");
+        setNewEmail("");
+        setConfirmEmail("");
+      }
+    } catch (error) {
+      console.error("Change email error:", error);
+      Alert.alert("Error", "An error occurred. Please try again.");
+    } finally {
+      setIsLoadingEmail(false);
+    }
+  };
 
   const handleChangePassword = async () => {
     const trimmedCurrentPassword = currentPassword.trim();
@@ -114,6 +200,73 @@ export default function Settings() {
       >
         <View style={styles.content}>
           <Text style={styles.title}>Settings</Text>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Change Email</Text>
+            <Text style={styles.subtitle}>Requires 2 factor authentication (2FA)</Text>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Current Email</Text>
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Enter current email"
+                  placeholderTextColor="#888"
+                  value={currentEmail}
+                  onChangeText={setCurrentEmail}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  editable={!isLoadingEmail}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>New Email</Text>
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Enter new email"
+                  placeholderTextColor="#888"
+                  value={newEmail}
+                  onChangeText={setNewEmail}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  editable={!isLoadingEmail}
+                />
+              </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Confirm New Email</Text>
+              <View style={styles.passwordInputContainer}>
+                <TextInput
+                  style={styles.passwordInput}
+                  placeholder="Confirm new email"
+                  placeholderTextColor="#888"
+                  value={confirmEmail}
+                  onChangeText={setConfirmEmail}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="email-address"
+                  editable={!isLoadingEmail}
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={[styles.button, isLoadingEmail && styles.buttonDisabled]}
+              onPress={handleChangeEmail}
+              activeOpacity={0.8}
+              disabled={isLoadingEmail}
+            >
+              <Text style={styles.buttonText}>
+                {isLoadingEmail ? "Updating..." : "Update Email"}
+              </Text>
+            </TouchableOpacity>
+          </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Change Password</Text>
@@ -218,84 +371,3 @@ export default function Settings() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000",
-  },
-  scrollContent: {
-    flexGrow: 1,
-  },
-  content: {
-    flex: 1,
-    padding: 20,
-    maxWidth: 600,
-    width: "100%",
-    alignSelf: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 30,
-  },
-  section: {
-    marginBottom: 30,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: "#fff",
-    marginBottom: 20,
-  },
-  inputContainer: {
-    width: "100%",
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    color: "#fff",
-    marginBottom: 8,
-    fontWeight: "500",
-  },
-  passwordInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    height: 50,
-    backgroundColor: "#1a1a1a",
-    borderWidth: 1,
-    borderColor: "#333",
-    borderRadius: 8,
-  },
-  passwordInput: {
-    flex: 1,
-    height: 50,
-    paddingHorizontal: 15,
-    color: "#fff",
-    fontSize: 16,
-  },
-  eyeIcon: {
-    padding: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  button: {
-    width: "100%",
-    height: 50,
-    backgroundColor: "#007AFF",
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-});
