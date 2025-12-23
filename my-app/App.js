@@ -88,6 +88,7 @@ export default function App() {
           onNavigate={(path) => {
             setRoute(path);
           }}
+          currentRoute={route}
         />
 
         <StatusBar style="auto" />
