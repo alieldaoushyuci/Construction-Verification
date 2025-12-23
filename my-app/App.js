@@ -8,6 +8,7 @@ import AccountInfo from "./components/AccountInfo";
 import InsuranceSignIn from "./components/InsuranceSignIn";
 import DocumentUpload from "./components/DocumentUpload/DocumentUpload";
 import Settings from "./components/Settings";
+import HomeScreen from "./components/HomeScreen/HomeScreen";
 import { supabase } from "./services/supabase";
 
 export default function App() {
@@ -53,12 +54,16 @@ export default function App() {
         return <Settings />;
       default:
         return (
-          <View style={styles.content}>
-            <Text style={styles.title}>Home Page</Text>
-            <Text style={styles.subtitle}>
-              Welcome — use the footer links to navigate.
-            </Text>
-          </View>
+          <HomeScreen
+            onNavigate={(path) => {
+              if (Platform.OS === "web" && typeof window !== "undefined") {
+                window.history.pushState({}, "", path);
+                setRoute((r) => r);
+                return;
+              }
+              setRoute(path);
+            }}
+          />
         );
     }
   }

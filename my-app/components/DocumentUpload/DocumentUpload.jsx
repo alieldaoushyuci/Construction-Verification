@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Animated, Dimensions } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Animated } from 'react-native';
 import ImageUpload from './ImageUpload';
+import styles from './DocumentUpload.styles';
 
 const DEFAULT_ITEMS = [
     {
@@ -43,11 +44,6 @@ export default function DocumentUpload({ items = DEFAULT_ITEMS }) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [fadeAnim] = useState(new Animated.Value(1));
     const [uploadStatuses, setUploadStatuses] = useState({}); // Track status per item ID
-
-    // Get responsive width - use 100% of available width minus padding
-    const windowWidth = Dimensions.get('window').width;
-    const containerPadding = 16;
-    const maxWidth = Math.min(windowWidth - containerPadding * 2, 800);
 
     const currentItem = items[activeIndex];
 
@@ -117,7 +113,7 @@ export default function DocumentUpload({ items = DEFAULT_ITEMS }) {
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
             <Text style={styles.title}>Upload Documents</Text>
 
-            <View style={[styles.itemContainer, { width: maxWidth }]}>
+            <View style={styles.itemContainer}>
                 <View style={styles.itemHeader}>
                     <Text style={styles.itemTitle}>{currentItem.title}</Text>
                 </View>
@@ -172,98 +168,3 @@ export default function DocumentUpload({ items = DEFAULT_ITEMS }) {
         </ScrollView>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 16,
-        backgroundColor: '#000',
-    },
-    contentContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        flexGrow: 1,
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: '600',
-        marginBottom: 24,
-        color: '#fff',
-    },
-    itemContainer: {
-        borderWidth: 1,
-        borderColor: '#555',
-        borderRadius: 16,
-        backgroundColor: '#56545a',
-        overflow: 'hidden',
-        marginBottom: 24,
-        alignSelf: 'center',
-    },
-    itemHeader: {
-        padding: 24,
-        borderBottomWidth: 1,
-        borderBottomColor: '#444',
-    },
-    itemTitle: {
-        fontSize: 24,
-        fontWeight: '900',
-        color: '#fff',
-    },
-    itemContent: {
-        padding: 24,
-    },
-    itemDescription: {
-        fontSize: 18,
-        color: '#fff',
-        marginBottom: 16,
-    },
-    uploadContainer: {
-        marginTop: 12,
-    },
-    controlsContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 12,
-        paddingHorizontal: 16,
-        paddingBottom: 16,
-        flexWrap: 'wrap',
-    },
-    button: {
-        paddingHorizontal: 24,
-        paddingVertical: 14,
-        backgroundColor: '#007aff',
-        borderRadius: 8,
-        minWidth: 100,
-    },
-    buttonDisabled: {
-        backgroundColor: '#ccc',
-        opacity: 0.5,
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: '600',
-        fontSize: 16,
-        textAlign: 'center',
-    },
-    indicatorContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        flex: 1,
-        gap: 8,
-        flexWrap: 'wrap',
-        minWidth: 100,
-    },
-    indicator: {
-        width: 10,
-        height: 10,
-        borderRadius: 5,
-        backgroundColor: '#555',
-    },
-    indicatorActive: {
-        backgroundColor: '#fff',
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-    },
-});
