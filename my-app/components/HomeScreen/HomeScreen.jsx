@@ -1,30 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { supabase } from '../../services/supabase';
 import styles from './HomeScreen.styles';
 
 export default function HomeScreen({ onNavigate }) {
-    const [userEmail, setUserEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
     const [verificationStats, setVerificationStats] = useState({
         total: 6,
         verified: 0,
         pending: 0,
         expired: 0,
     });
+    const hasFetched = useRef(false);
 
     useEffect(() => {
-        // Fetch user email
-        supabase.auth.getUser().then(({ data: { user } }) => {
-            if (user?.email) {
-                setUserEmail(user.email);
-            }
-        });
-
-        // TODO: Fetch actual verification stats from database
-        // For now, using placeholder data
-        // This would be replaced with actual data fetching
+        // Only fetch if we haven't fetched yet
+        if (!hasFetched.current) {
+            fetchProfile();
+            hasFetched.current = true;
+        }
     }, []);
+
+    const fetchProfile = async () => {
+        try {
+            // Get the current user
+            const {
+                data: { user },
+                error: userError,
+            } = await supabase.auth.getUser();
+
+            if (userError || !user) {
+                console.error('Error getting user:', userError);
+                return;
+            }
+
+            // Fetch profile data
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('first_name')
+                .eq('id', user.id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching profile:', error);
+            } else if (data) {
+                setFirstName(data.first_name || '');
+            }
+        } catch (error) {
+            console.error('Error in fetchProfile:', error);
+        }
+    };
 
     const verificationItems = [
         { name: 'Contractor License', status: 'pending', icon: 'document-text' },
@@ -91,10 +117,7 @@ export default function HomeScreen({ onNavigate }) {
             <View style={styles.content}>
                 {/* Welcome Section */}
                 <View style={styles.welcomeSection}>
-                    <Text style={styles.welcomeTitle}>Welcome Back</Text>
-                    <Text style={styles.welcomeSubtitle}>
-                        {userEmail || 'Contractor'}
-                    </Text>
+                    <Text style={styles.welcomeTitle}>Welcome Back{firstName ? `, ${firstName}` : ''}</Text>
                 </View>
 
                 {/* Verification Overview Card */}
