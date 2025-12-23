@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 16,
-        backgroundColor: '#fff',
+        backgroundColor: '#000',
     },
     contentContainer: {
         alignItems: 'center',
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: '600',
         marginBottom: 16,
-        color: '#000',
+        color: '#fff',
     },
     itemContainer: {
         borderWidth: 1,
